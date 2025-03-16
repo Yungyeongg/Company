@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "spring.web.encoding.charset",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.web.encoding.charset'"
+  },
+  {
+    "name": "spring.web.encoding.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.web.encoding.enabled'"
+  },
+  {
+    "name": "<",
+    "type": "java.lang.String",
+    "description": "A description for '<'"
+  }
+]}

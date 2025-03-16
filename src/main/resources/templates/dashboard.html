@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="jp" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dashBoard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+  			height: 100%;
+  			width: 100%;
+		}
+		/* ページレイアウトをflexboxで調整　*/
+		body {
+  		display: flex;
+  		flex-direction: column;
+  		height: 100%; /* ページの高さ100%で設定　*/
+		}
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: white;
+            color: black;
+            height: 100px; /* ヘーダ高さ指定 */
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        /* メニューアイコンスタイル */
+		.menu-icon {
+  			font-size: 30px;
+  			cursor: pointer;
+  			padding: 10px;
+  			background-color: white;
+  			color: black;
+  			display: inline-block;
+		}
+
+		/* メニュ―スタイル (基本隠す) */
+		#menu {
+  			display: none; /* 基本的にメニュー隠す　*/
+  			background-color: white;
+  			color: black;
+  			padding: 20px;
+  			position: absolute;
+  			top: 50px;
+  			right: 10px;
+  			width: 200px;
+  			border-radius: 5px;
+		}
+
+		/* メニューリストスタイル */
+		#menu ul {
+  			list-style-type: none;
+		}
+
+		#menu ul li {
+  			margin: 10px 0;
+		}
+
+		#menu ul li a {
+  			text-decoration: none;
+  			color: black;
+  			font-size: 18px;
+		}
+
+		/* hiddenクラスでメニュー隠す */
+		.hidden {
+  			display: none;
+		}
+
+		/* .hiddenクラスを除去したらメニューが見せるように設定 */
+		#menu:not(.hidden) {
+ 			display: block;
+		}
+
+        .情報変更 {
+  			padding: 40px 20px;
+  			margin: 40px 0 40px 0;
+  			background-color: #f4f4f4;
+  			flex: 1;/* 本文が残りの空間を満たすように設定 */
+		}
+		.ドキュメント修正 {
+    		padding: 40px 20px;
+  			margin: 40px 0 80px 0;
+  			background-color: #f4f4f4;
+  			flex: 1; /* 本文が残りの空間を満たすように設定 */
+		}
+
+		footer {
+  			background-color: #8fdcf3;
+  			color: black;
+  			padding: 20px 40px;
+  			position: relative;
+  			display: flex;
+  			flex-direction: column; /*　要素縦に配置　*/
+  			gap: 10px;  /*　二列間の間隔　*/
+		}
+		footer div {
+    		display: flex;  /*各Spanを横に整列*/
+    		justify-content: left; /*　Span要素たちを配置　*/
+		}
+
+		footer span {
+    		margin-right: 50px; /* 各Span間に間隔を追加 */
+		}
+
+		@media screen and (max-width: 768px) {
+  			header {
+    			flex-direction: column;
+    			text-align: center;
+  			}
+  			header nav {
+    			margin-top: 10px;
+  			}
+  
+		}
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>company label</h1>
+        <button>ログアウト</button>
+        
+            <!-- メニューアイコン (棒切れ三つ) -->
+        <div class="menu-icon" onclick="toggleMenu()">
+            &#9776; <!-- HTML コードで三つの横線 -->
+        </div>
+            <!-- メニューリスト -->
+         <nav id="menu" class="hidden">
+            <ul>
+                <li><a href="#">社員情報管理</a></li>
+                <li><a href="#">資産管理</a></li>
+                <li><a href="#">社員情報変更</a></li>
+                <li><a href="#">ドキュメント</a></li>
+            </ul>
+        </nav>    
+    </header>
+    
+    <section class="情報変更">
+        <button>情報変更</button>
+    </section>
+    
+    <section class="ドキュメント修正">
+        <button>ドキュメント修正</button>
+    </section>
+    
+    <footer>
+        <div>
+            <span>代表者 あああ</span>
+            <span>メール companny@label.com</span>
+        </div>
+        <div>  
+            <span>電話番号 070-1111-2222</span>
+            <span>住所</span>
+        </div> 
+    </footer>   
+
+<script>
+    // メニューtoggle関数
+function toggleMenu() {
+    const menu = document.getElementById('menu');
+    menu.classList.toggle('hidden'); // メニューを隠したり見せりたりするtoggle
+}
+</script>
+</body>
+</html>
