@@ -1,4 +1,4 @@
-package com.list.companycontroller;
+package com.list.company.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.list.company.model.Users;
 import com.list.company.service.UsersService;
 
-import org.springframework.ui.Model; 
+import org.springframework.ui.Model;
+
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
@@ -31,7 +33,7 @@ public class LoginController {
 
 	@PostMapping("/login/check")    //@ModelAttribute　：　userId, passwordがUsersにオブジェクト自動マッピング 
 									//@ValidがチェックしたらBindingResultに検証結果を保存
-	public String loginCheck(@Valid @ModelAttribute Users loginForm, BindingResult result, Model loginErrorMessage) {
+	public String loginCheck(@Valid @ModelAttribute Users loginForm, BindingResult result, Model loginErrorMessage, HttpSession session) {
 		
 		if (loginForm.getUserId().isEmpty()) {//isEmpty(): 配列の長さを返還
 			loginErrorMessage.addAttribute("idError", "IDを入力してください。");
@@ -48,7 +50,9 @@ public class LoginController {
 		//}
 		
 		if (usersService.authenticate(loginForm.getUserId(),loginForm.getPassword())) {
-	        return "redirect:/success";
+			
+			session.setAttribute("userId", loginForm.getUserId());
+			return "redirect:/success";
 	    } else {
 	    	loginErrorMessage.addAttribute("diffError", "IDまたはパスワードが違います。");
 	        return "login";
@@ -56,7 +60,8 @@ public class LoginController {
 	}
 	
 	@GetMapping("/success")
-    public String loginSuccess() {
+    public String loginSuccess(HttpSession session, Users loginForm) {
+		session.getAttribute("userId");
         return "dashboard";
     }
 }

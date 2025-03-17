@@ -1,4 +1,4 @@
-package com.list.companycontroller;
+package com.list.company.controller;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
