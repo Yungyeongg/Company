@@ -74,12 +74,34 @@
     		<groupId>org.springframework.security</groupId>
     		<artifactId>spring-security-crypto</artifactId>
    		</dependency>
-
+   		
+ 		<!-- Spring Boot Starter Test (JUnit 5 含め) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+			<!-- jnit5でけ使う、以前のバージョンは使わないように -->
+            	<exclusion>
+                	<groupId>org.junit.vintage</groupId>
+                	<artifactId>junit-vintage-engine</artifactId>
+            	</exclusion>
+            </exclusions>
 		</dependency>
+		
+		<!-- Mockito -->
+    	<dependency>
+        	<groupId>org.mockito</groupId>
+        	<artifactId>mockito-core</artifactId>
+        	<scope>test</scope>
+    	</dependency>
+    	
+    	<!-- Spring Test -->
+    	<dependency>
+        	<groupId>org.springframework</groupId>
+       	 	<artifactId>spring-test</artifactId>
+        	<scope>test</scope>
+    	</dependency>
 	</dependencies>
 
 	<build>
