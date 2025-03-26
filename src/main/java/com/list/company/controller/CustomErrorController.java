@@ -9,8 +9,8 @@ public class CustomErrorController implements ErrorController {
 	 
 	@GetMapping("/error")
 	    public String handleError() {
-	        // 오류 페이지를 반환
-	        return "error"; // error.html 페이지를 반환하도록 설정
+	        // errorページを返還
+	        return "error"; // error.htmlページ
 	    }
 
 }

@@ -1,5 +1,10 @@
 package com.list.company.controller;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,104 +13,186 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
+import com.list.CompanyApplication;
+import com.list.company.model.Users;
+import com.list.company.repository.UsersRepository;
 import com.list.company.service.UsersService;
+import com.list.company.service.UsersServiceImpl;
 import com.list.company.service.UsersServiceImplTest;
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(LoginController.class)
-public class LoginControllerTest {
 
-	@Autowired
-	private MockMvc mockMvc; //偽の要請を送られるMockMvcオブジェクト
+import jakarta.servlet.http.HttpSession;
+
+@ExtendWith(MockitoExtension.class)
+public class LoginControllerTest { 
+
+	@InjectMocks
+	private LoginController loginController;
 	
-	@MockBean
-	private UsersService usersService; //Mockオブジェクトで生成
+	@InjectMocks
+	private CustomErrorController errorController;
 	
-	// testをする際にはコンストラクタを明示的に作らない
+	@Mock
+	private BindingResult bindingResult;
 	
-	@Test
-	public void loginPageRenderingテスト() throws Exception {
-		
-		System.out.println("login page rendering test start");
-		
-		mockMvc.perform(get("/login"))
-			   .andExpect(status().isOk()) //HTTP200応答確認
-			   .andExpect(view().name("login")) //返還されたviewが"login"か確認
-			   .andExpect(model().attributeExists("users")); //モデルに"users"が存在するか確認
-		
-		System.out.println("login page rendering test 完了");
+	@Mock
+	private Model model;
+	
+	@Mock
+	private HttpSession session;
+	
+	@Mock
+	private UsersServiceImpl usersService;
+	
+	@Mock
+	private UsersRepository usersRepository;
+	
+	private Users mockUsers;
+	
+	@BeforeEach
+	void setUp() {
+		mockUsers = new Users();
+		mockUsers.setUserId("testId");
+		mockUsers.setPassword("testPassword");
 	}
 	
 	@Test
-	public void ログイン成功テスト() throws Exception {
-		
-		System.out.println("ログイン成功テスト start");
-		
-		when(usersService.authenticate("testUser", "password123")).thenReturn(true);
-		
-		mockMvc.perform(post("/login/check")
-				.param("userId", "testUser")
-				.param("password", "password123"))
-		       .andExpect(status().is3xxRedirection()) //成功時redirect302
-		       .andExpect(redirectedUrl("/success")); //"/success"でredirectされるか確認  
+    void contextLoads() {
+		CompanyApplication.main(new String[] {}); 
+        // application contextが正常的にロードされるか確認
+    }
 	
-		System.out.println("ログイン成功テスト 完了");
+	@Test
+	void errorPage() {
+		
+		String viewName = errorController.handleError();
+		
+		assertThat(viewName).isEqualTo("error");
 	}
 	
 	@Test
-	public void ログイン失敗テスト() throws Exception {
+	void loginFormRendering() {
 		
-		System.out.println("ログイン失敗テスト start");
+		String viewName = loginController.loginForm(model, mockUsers);
 		
-		when(usersService.authenticate("wrongUser", "wrongPass")).thenReturn(false);
-		
-		mockMvc.perform(post("/login/check")
-			    .param("userId", "wrongUser")
-			    .param("password", "wrongPassword"))
-		       .andExpect(status().isOk()) //login失敗時またloginページに移動
-		       .andExpect(view().name("login"))
-		       .andExpect(model().attributeExists("diffError")) //"IDまたはパスワードが違います。" メッセージ存否確認
-		       .andExpect(model().attribute("diffError", "IDまたはパスワードが違います。"));
-		
-		System.out.println("ログイン失敗テスト 完了");
+		verify(model).addAttribute("users", mockUsers);
+		assertThat(viewName).isEqualTo("login");
 	}
 	
 	@Test
-	public void id空白テスト() throws Exception {
+	void idBlankCheck() {
+		//given
+		mockUsers.setUserId("");
+		mockUsers.setPassword("testPassword");
 		
-		System.out.println("id空白テスト start");
+		//when
+		String viewName = loginController.loginCheck(mockUsers, bindingResult, model, session);
 		
-		mockMvc.perform(post("/login/check")
-				 .param("userId", "")
-				 .param("password", "password123"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("login"))
-				.andExpect(model().attributeExists("idError"))
-				.andExpect(model().attribute("idError", "IDを入力してください。"));
-	
-		System.out.println("id空白テスト 完了");
+		//then
+		assertThat(viewName).isEqualTo("login");
+		verify(model).addAttribute("idError", "IDを入力してください。"); 
+		//verifyはｍodelのメソッドが特定因子値と呼び出しされたか確認
 	}
 	
 	@Test
-	public void password空白テスト() throws Exception {
+	void passwordBlankCheck() {
+		//given
+		mockUsers.setUserId("testId");
+		mockUsers.setPassword("");
 		
-		System.out.println("password空白テスト start");
+		//when
+		String viewName = loginController.loginCheck(mockUsers, bindingResult, model, session);
 		
-		mockMvc.perform(post("/login/check")
-				 .param("userId", "testUser")
-				 .param("password", ""))
-		       .andExpect(status().isOk())
-		       .andExpect(view().name("login"))
-		       .andExpect(model().attributeExists("passwordError"))
-		       .andExpect(model().attribute("passwordError","パスワードを入力してください。"));
-		
-		System.out.println("password空白テスト 完了");
+		//then
+		assertThat(viewName).isEqualTo("login");
+		verify(model).addAttribute("passwordError", "パスワードを入力してください。");
 	}
+	
+	@Test
+	void idとパスワード存在sessionにidあり() {
+		mockUsers.setUserId("testId");
+		mockUsers.setPassword("testPassword");
+		
+		when(usersService.authenticate("testId", "testPassword")).thenReturn(true);
+		
+		String returnName = loginController.loginCheck(mockUsers, bindingResult, model, session);
+		
+		 ArgumentCaptor<String> sessionKeyCaptor = ArgumentCaptor.forClass(String.class);
+	     ArgumentCaptor<String> sessionValueCaptor = ArgumentCaptor.forClass(String.class);
+	     verify(session).setAttribute(sessionKeyCaptor.capture(), sessionValueCaptor.capture());
+
+	        assertThat(sessionKeyCaptor.getValue()).isEqualTo("userId");
+	        assertThat(sessionValueCaptor.getValue()).isEqualTo("testId");
+	        assertThat(returnName).isEqualTo("redirect:/success");
+	    }
+	
+	
+	@Test
+	void id存在なしパスワード存在() {
+		//given
+		mockUsers.setUserId("wrongId");
+		mockUsers.setPassword("testPassword");
+		
+		//when
+		String viewName = loginController.loginCheck(mockUsers, bindingResult, model, session);
+		
+		//then
+		assertThat(viewName).isEqualTo("login");
+		verify(model).addAttribute("diffError", "IDまたはパスワードが違います。");
+	}
+	
+	@Test
+	void id存在パスワード存在なし() {
+		//given
+		mockUsers.setUserId("testPassword");
+		mockUsers.setPassword("wrongId");
+		
+		//when
+		String viewName = loginController.loginCheck(mockUsers, bindingResult, model, session);
+		
+		//then
+		assertThat(viewName).isEqualTo("login");
+		verify(model).addAttribute("diffError", "IDまたはパスワードが違います。");
+	}
+	
+	@Test
+	void id存在なしパスワード存在なし() {
+		//given
+		mockUsers.setUserId("wrongId");
+		mockUsers.setPassword("wrongPassword");
+		
+		//when 
+		String viewName = loginController.loginCheck(mockUsers, bindingResult, model, session);
+		
+		//then
+		assertThat(viewName).isEqualTo("login");
+		verify(model).addAttribute("diffError", "IDまたはパスワードが違います。");
+	}
+	
+	@Test 
+	 void loginSuccessDashboard遷移() {
+        // given
+        String expectedUserId = "testUser";
+        when(session.getAttribute("userId")).thenReturn(expectedUserId); 
+
+        // when
+        String viewName = loginController.loginSuccess(session, mockUsers); 
+
+        // then
+        assertThat(viewName).isEqualTo("dashboard");
+        verify(session).getAttribute("userId"); 
+    }
 }

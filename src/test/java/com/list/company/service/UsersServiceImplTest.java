@@ -37,7 +37,7 @@ public class UsersServiceImplTest {
 	@BeforeEach
     public void setUp() {
         
-		MockitoAnnotations.openMocks(this); 
+		MockitoAnnotations.openMocks(this);  
         
         // テスト用ユーザーオブジェクト生成
         mockUser = new Users(); 
@@ -45,6 +45,7 @@ public class UsersServiceImplTest {
         mockUser.setUserId("testUser");
         mockUser.setPassword(encodedPassword);
     }
+	
 	
 	@Test
     public void Authenticate成功テスト() {
@@ -79,6 +80,6 @@ public class UsersServiceImplTest {
         boolean result = usersService.authenticate("nonExistentUser", "testPassword");
 
         // then: 認証が失敗した検証
-        assertFalse(result);
+        assertFalse(result); 
     }
 }
