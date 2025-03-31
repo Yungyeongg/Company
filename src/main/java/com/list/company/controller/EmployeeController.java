@@ -1,5 +1,8 @@
 package com.list.company.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,13 +28,18 @@ public class EmployeeController {
 
 	@GetMapping("/enroll")
 	public String showEnrollPage(Model model, EmployeeDTO employeeDTO) {
-		model.addAttribute("employeeDTO", employeeDTO);
+		
+		 Map<String, String> errors = (Map<String, String>) model.asMap().get("errors");
+		    model.addAttribute("errors", errors);
+		    model.addAttribute("employeeDTO", employeeDTO);
 		return "enroll";
+		
 	}
 	
 	@PostMapping("/enrollEmployeeCheck")
-	public String enrollCheck(@ModelAttribute EmployeeDTO employeeDTO, Model model) {
+	public String enrollCheck(@ModelAttribute EmployeeDTO employeeDTO, Model model, RedirectAttributes redirectAttributes) {
 		//@Validation  BindingResult result
+		
 		System.out.println("enrollCheck method 呼び出しされる");
 		
 		String department = employeeDTO.getDepartment();
@@ -46,87 +54,85 @@ public class EmployeeController {
 	    //    return "enroll";
 	   // }
 		// 不足な部分　ヌル処理　null、 space、 設定値なし
-		if(department == null || department.trim().isEmpty() || !department.matches("^[^\\s]*$")) {
-			
-			model.addAttribute("department", "部署を選択してください。");
-			return "enroll";
-		}
 		
-		if(rights == null || rights.trim().isEmpty() || !rights.matches("^[^\\s]*$")) {
-			
-			model.addAttribute("rights","権限を選択してください。");
+		Map<String, String> errors = new HashMap<>();
 		
-			return "enroll";
-		}
-		   System.out.println(name);
-		if(name == null || name.trim().isEmpty() || !name.matches("^[^\\s]*$")) {
-
-			model.addAttribute("name", "名前を入力してください。");
-			return "enroll";
-		}
-		
-		String nameRegex = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF]+$";
-		if(!name.matches(nameRegex)) {
-			model.addAttribute("name", "ひらがな、カタカナ、漢字を入力してください" );
-			return "enroll";
-		}
-		
-		if(email == null || email.trim().isEmpty() || !email.matches("^[^\\s]*$")) {
-			
-			model.addAttribute("email","メールを入力してください");
-			return "enroll";
-		}
-		
-		String emailRegex = "^[a-z0-9]+([._%-+]?[a-z0-9]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$";
-		if(!email.matches(emailRegex)) {
-			
-			model.addAttribute("email", "英語の小文字, 数字を含めて入力してください");
-			return "enroll";
-		}
-		
-		if(phone == null || phone.trim().isEmpty() || !phone.matches("^[^\\s]*$")) {
-			
-			model.addAttribute("phone","電話番号を入力してください。");
-			return "enroll";
-		}
-		
-		String phoneRegex = "^[0-9]+$";
-        if(!phone.matches(phoneRegex)) {
-			
-        	model.addAttribute("phone", "数字を入力してください");
-			return "enroll";
-		}
-		
-		if(id == null || id.trim().isEmpty() || !id.matches("^[^\\s]*$")) {
-			
-			model.addAttribute("id","ユーザーIDを入力してください。");
-			return "enroll";
-		}
-		
-		String idRegex = "^[a-z0-9]+$";
-		if(!id.matches(idRegex)) {
-			
-			model.addAttribute("id", "英語の小文字,数字だけ入力してください");
-			return "enroll";
-		}
-		
-		if(password == null || password.trim().isEmpty() || !password.matches("^[^\\s]*$")) {
-			System.out.println("passwordError パスワードを入力してください。");
-			model.addAttribute("password","パスワードを入力してください。");
-			return "enroll";
-		}
-		
-		String passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%&*_]).*$";
-		if(!password.matches(passwordRegex)) {
-			System.out.println("passwordError  @ # $ % &");
-			model.addAttribute("password","英語の大文字·小文字·数字·特殊記号! @ # $ % & * _を含めて入力してください");
-			return "enroll";
-		}
-		
+		if (isBlank(department)) {
+	        errors.put("department", "部署を選択してください。");
+	    }
+	    if (isBlank(rights)) {
+	        errors.put("rights", "権限を選択してください。");
+	    }
+	    if (isBlank(name)) {
+	        errors.put("name", "名前を入力してください。");
+	    }
+	    if (isBlank(email)) {
+	        errors.put("email", "メールを入力してください");
+	    }
+	    if (isBlank(phone)) {
+	        errors.put("phone", "電話番号を入力してください。");
+	    }
+	    if (isBlank(id)) {
+	        errors.put("id", "ユーザーIDを入力してください。");
+	    }
+	    if (isBlank(password)) {
+	        errors.put("password", "パスワードを入力してください。");
+	    }
+	    
+	    
+	    if (!errors.containsKey("name") && !isValidJapaneseName(name)) {
+	        errors.put("name", "ひらがな、カタカナ、漢字を入力してください");
+	    }
+	    if (!errors.containsKey("email") && !isValidEmail(email)) {
+	    	
+	    	System.out.println("isBlank: " + isBlank(email) + ", email: " + email + ", email errs: " + errors);
+	        errors.put("email", "英語の小文字, 数字を含めて入力してください");
+	    }
+	    if (!errors.containsKey("phone") && !isValidPhone(phone)) {
+	        errors.put("phone", "数字を入力してください");
+	    }
+	    if (!errors.containsKey("id") && !isValidId(id)) {
+	        errors.put("id", "英語の小文字,数字だけ入力してください");
+	    }
+	    if (!errors.containsKey("password") && !isValidPassword(password)) {
+	        errors.put("password", "英語の大文字·小文字·数字·特殊記号! @ # $ % & * _を含めて入力してください");
+	    }
+	    
+	    if (!errors.isEmpty()) {
+	    	redirectAttributes.addFlashAttribute("errors", errors);
+	   
+	        return "redirect:/enroll";
+	    }
 		else {
 			employeeService.saveEmployee(employeeDTO);
 			return "redirect:/enroll/success";
 		}
+	}
+	
+	//不足な部分：全角のスペースは種類が多い、Tabも制御しないといけない
+	public boolean isBlank(String value) {                 //左右半角のスペースを除去
+		                        //半角のスペースを除去        //空白を含まない文字列
+	    return value == null || value.trim().isEmpty() || !value.matches("^[^\\p{Z}]+$");
+	}
+
+	private boolean isValidJapaneseName(String name) {
+	    return name.matches("^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF]+$");
+	}
+
+	private boolean isValidEmail(String email) {
+	    return email.matches("^[a-z0-9]+([._%-+]?[a-z0-9]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$");
+	}
+
+	private boolean isValidPhone(String phone) {
+	    return phone.matches("^[0-9]+$");
+	}
+
+	private boolean isValidId(String id) {
+	    return id.matches("^[a-z0-9]+$");
+	}
+
+	private boolean isValidPassword(String password) {
+	    return password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%&*_]).*$");
 	}
 	
 	@GetMapping("/enroll/success")

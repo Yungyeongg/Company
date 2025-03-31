@@ -36,14 +36,6 @@ public class Employee {
 	
 	public Employee() {}
 
-	public Long getNo() {
-		return no;
-	}
-
-	public void setNo(Long no) {
-		this.no = no;
-	}
-
 	public String getDepartment() {
 		return department;
 	}
@@ -83,12 +75,4 @@ public class Employee {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-
-	public Long getUsersno() {
-		return usersno;
-	}
-
-	public void setUsersno(Long usersno) {
-		this.usersno = usersno;
-	} 
 }

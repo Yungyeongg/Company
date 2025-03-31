@@ -97,7 +97,7 @@
         			<option value="開発部">開発部</option>
     			</select>
             </div>
-                <p class="error" th:if="${department != null}"  th:text="${department}"></p>
+                <p class="error" th:if="${errors != null && errors['department'] != null}" th:text="${errors['department']}"></p>
                 
             <div class="form-group">
                 <label for="rights">権限</label>
@@ -109,37 +109,37 @@
         			<option value="部署社員 ">部署社員</option>
     			 </select>
             </div> <!-- class="error-message" -->
-                 <p class="error" th:if="${rights != null}"  th:text="${rights}"></p>
+                 <p class="error" th:if="${errors != null && errors['rights'] != null}" th:text="${errors['rights']}"></p>
             
             <div class="form-group">
                 <label for="name">名前</label>
                 <input type="text" th:field="*{name}">
             </div>
-                <p class="error" th:if="${name != null}"  th:text="${name}"></p>
+                <p class="error" th:if="${errors != null && errors['name'] != null}" th:text="${errors['name']}"></p>
             
             <div class="form-group">
                 <label for="userId">ユーザーID</label>
                 <input type="text" th:field="*{id}">
             </div>
-                 <p class="error" th:if="${id != null}" th:text="${id}"></p>
+                 <p class="error" th:if="${errors != null && errors['id'] != null}" th:text="${errors['id']}"></p>
                 
             <div class="form-group">
                 <label for="password">パスワード</label>
                 <input type="password" name ="password" th:field="*{password}">
             </div>
-                <p class="error" th:if="${password != null}"  th:text="${password}"></p>
+                <p class="error" th:if="${errors != null && errors['password'] != null}" th:text="${errors['password']}"></p>
             
             <div class="form-group">
                 <label for="email">メール</label>
-                <input type="text" th:field="*{email}">
+                <input type="email" th:field="*{email}">
             </div>
-                <p class="error" th:if="${email != null}"  th:text="${email}"></p>
+                <p class="error" th:if="${errors != null && errors['email'] != null}" th:text="${errors['email']}"></p>
             
             <div class="form-group">
                 <label for="phone">電話番号</label>
                 <input type="text" th:field="*{phone}">
             </div>
-                <p class="error" th:if="${phone != null}" th:text="${phone}"></p>
+               <p class="error" th:if="${errors != null && errors['phone'] != null}" th:text="${errors['phone']}"></p>
             <input type="submit" value="登録する">
         </form>   
     </div>    
